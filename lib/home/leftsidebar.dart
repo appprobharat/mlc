@@ -1,0 +1,586 @@
+import 'package:mlc/api/auth_helper.dart';
+// import 'package:mlc/admin/challan/list_challan_in.dart';
+import 'package:mlc/admin/clients/details.dart';
+import 'package:mlc/api/api_service.dart';
+import 'package:mlc/home/new_dashboard.dart';
+import 'package:mlc/admin/report/item_stock.dart';
+import 'package:mlc/admin/report/state_wise_report.dart';
+import 'package:mlc/admin/sale_approval/approve_sale.dart';
+import 'package:mlc/admin/settings/change_password.dart';
+import 'package:mlc/admin/report/low_stock.dart';
+import 'package:mlc/admin/setup/department/department.dart';
+import 'package:mlc/admin/setup/designation/designation.dart';
+import 'package:mlc/admin/employee/details.dart';
+import 'package:mlc/admin/income_expense/category_items_list.dart';
+import 'package:mlc/admin/income_expense/category_list.dart';
+import 'package:mlc/admin/income_expense/expense_list.dart';
+import 'package:mlc/admin/income_expense/income_list.dart';
+import 'package:mlc/admin/payment/manage.dart';
+import 'package:mlc/admin/purchase/manage.dart';
+import 'package:mlc/admin/quick_receipt/manage.dart';
+import 'package:mlc/admin/receipt/manage.dart';
+import 'package:mlc/admin/report/due_report.dart';
+import 'package:mlc/admin/report/ledger.dart';
+import 'package:mlc/screens/login.dart';
+import 'package:mlc/admin/setup/session.dart';
+import 'package:mlc/transaction/transaction.dart';
+import 'package:flutter/material.dart';
+
+import 'package:mlc/admin/items/itemspage.dart';
+import 'package:mlc/admin/sale/manage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class LeftSidebar extends StatelessWidget {
+  final String companyName;
+  final String name;
+  final String photo;
+
+  const LeftSidebar({
+    super.key,
+    required this.companyName,
+    required this.name,
+    required this.photo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        width: 220,
+        color: Colors.white,
+        child: Drawer(
+          elevation: 0,
+          child: ListView(
+            children: [
+              Container(
+                color: const Color(0xFF1E3A8A),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                height: 70,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: ClipOval(
+                        child: (photo.isNotEmpty)
+                            ? Image.network(
+                                photo,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.grey,
+                                                ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.store,
+                                    color: Colors.grey,
+                                    size: 24,
+                                  );
+                                },
+                              )
+                            : const Icon(
+                                Icons.store,
+                                color: Colors.grey,
+                                size: 24,
+                              ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            companyName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _drawerItem(
+                Icons.home,
+                "Dashboard",
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => DashboardPage()),
+                  );
+                },
+              ),
+              // 1. Dashboard
+              // _drawerItem(
+              //   Icons.home,
+              //   "Dashboard",
+              //   onTap: () {
+              //     Navigator.pushReplacement(
+              //       context,
+              //       MaterialPageRoute(builder: (_) => DashboardScreen()),
+              //     );
+              //   },
+              // ),
+              // _drawerItem(
+              //   Icons.apartment,
+              //   'Company',
+              //   onTap: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (_) => CompanyListPage()),
+              //     );
+              //   },
+              // ),
+              // 2. Clients
+              _drawerItem(
+                Icons.person,
+                'Client',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ManageClientPage()),
+                  );
+                },
+              ),
+              _drawerItem(
+                Icons.group,
+                'Employee',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ManageEmployeePage()),
+                  );
+                },
+              ),
+              // 3. Items
+              _drawerItem(
+                Icons.list_alt,
+                'Items',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ItemScreen()),
+                  );
+                },
+              ),
+              _drawerItem(
+                Icons.fact_check_outlined,
+                'Approve Sale',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ApproveSalePage()),
+                  );
+                },
+              ),
+              ExpansionTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Setup'),
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                visualDensity: const VisualDensity(vertical: -4),
+                children: [
+                  _drawerItem(
+                    Icons.category,
+                    'Category',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => CategoryListPage()),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.event,
+                    'Session',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => SessionPage()),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.badge,
+                    'Designation',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => DesignationPage()),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.work,
+                    'Department',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => DepartmentPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              // 4. Sales
+              ExpansionTile(
+                leading: const Icon(Icons.receipt),
+                title: const Text('Sales'),
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                visualDensity: const VisualDensity(vertical: -4),
+                children: [
+                  _drawerItem(
+                    Icons.manage_accounts,
+                    'Manage',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => SalesManagePage()),
+                      );
+                    },
+                  ),
+                  // _drawerItem(
+                  //   Icons.receipt_long,
+                  //   'Order',
+                  //   onTap: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(builder: (_) => SalesOrderPage()),
+                  //     );
+                  //   },
+                  // ),
+                  // _drawerItem(
+                  //   Icons.keyboard_return,
+                  //   'Return',
+                  //   onTap: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(builder: (_) => ReturnPage()),
+                  //     );
+                  //   },
+                  // ),
+                ],
+              ),
+
+              // 5. Purchase
+              ExpansionTile(
+                leading: const Icon(Icons.shopping_cart),
+                title: const Text('Purchase'),
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                visualDensity: const VisualDensity(vertical: -4),
+                children: [
+                  _drawerItem(
+                    Icons.manage_accounts,
+                    'Manage',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => PurchaseManagePage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              // 6. Quotation
+              // _drawerItem(
+              //   Icons.request_quote,
+              //   "Quotation",
+              //   onTap: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (_) => QuotationPage()),
+              //     );
+              //   },
+              // ),
+
+              // 7. Payment
+              _drawerItem(
+                Icons.payments,
+                'Payment',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ManagePaymentPage()),
+                  );
+                },
+              ),
+
+              // 8. Receipt
+              _drawerItem(
+                Icons.receipt_long,
+                'Receipt',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ManageReceiptPage()),
+                  );
+                },
+              ),
+
+              // 9. Quick Receipt
+              _drawerItem(
+                Icons.flash_on,
+                'Quick Receipt',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ManageQuickReceiptPage()),
+                  );
+                },
+              ),
+
+              // 10. Income
+              ExpansionTile(
+                leading: const Icon(Icons.attach_money),
+                title: const Text('Inc/Exp'),
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                visualDensity: const VisualDensity(vertical: -4),
+                children: [
+                  _drawerItem(
+                    Icons.category,
+                    'Category',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => CategoryListPage()),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.add_box,
+                    'Items',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CategoryItemsListPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.money_outlined,
+                    'Income',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => IncomeListPage()),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.money_off,
+                    'Expense',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ExpenseListPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              // 11. Reports
+              ExpansionTile(
+                leading: const Icon(Icons.insert_chart),
+                title: const Text('Reports'),
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                visualDensity: const VisualDensity(vertical: -4),
+                children: [
+                  _drawerItem(
+                    Icons.book,
+                    'Ledger',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => LedgerPage()),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.assessment,
+                    'State-wise Report',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => StateWiseReportPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  // _drawerItem(Icons.balance, 'Balance Sheet'),
+                  // _drawerItem(Icons.assignment, 'Item Report'),
+                  _drawerItem(
+                    Icons.swap_horiz,
+                    'Txn Report',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => TransactionPage()),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.schedule,
+                    'Due Report',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ReportDuePage()),
+                      );
+                    },
+                  ),
+
+                  _drawerItem(
+                    Icons.inventory_2,
+                    'Item Stock',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ItemStockReportPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _drawerItem(
+                    Icons.warning_amber_rounded,
+                    'Low Stock',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => LowStockPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              // 12. Settings
+              ExpansionTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                visualDensity: const VisualDensity(vertical: -4),
+                children: [
+                  _drawerItem(
+                    Icons.key,
+                    'Password',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ChangePasswordPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              // 13. Logout
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () async {
+                  // 🟡 1. Call Logout API
+                  final res = await ApiService.postRequest(
+                    endpoint: "/logout",
+                    body: {},
+                  );
+
+                  debugPrint("🚪 Logout API Response: $res");
+
+                  // 🔐 2. Delete secure token
+                  await AuthStorage.deleteToken();
+
+                  // 🧾 3. Clear SharedPreferences
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.clear();
+
+                  if (!context.mounted) return;
+
+                  // 🔁 4. Navigate to Login (clear stack)
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (route) => false,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerItem(IconData icon, String title, {VoidCallback? onTap}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.black),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
+        title: Text(title),
+        onTap: onTap,
+      ),
+    );
+  }
+}

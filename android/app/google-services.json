@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "509981565900",
+    "project_id": "mlc-enterprises",
+    "storage_bucket": "mlc-enterprises.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509981565900:android:77c1983c327791ad983369",
+        "android_client_info": {
+          "package_name": "com.techinnovationapp.mlc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG0UBeieRku20ADt5qQOFgZ3ywZz_-Qg4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
