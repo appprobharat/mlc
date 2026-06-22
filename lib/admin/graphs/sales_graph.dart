@@ -62,7 +62,7 @@ class SalesPurchaseChart extends StatelessWidget {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                  horizontalInterval: _getInterval(),
+                    horizontalInterval: _getInterval(),
                   ),
 
                   borderData: FlBorderData(show: false),
@@ -85,7 +85,7 @@ class SalesPurchaseChart extends StatelessWidget {
 
                         reservedSize: 42,
 
-                       interval: _getInterval(),
+                        interval: _getInterval(),
 
                         getTitlesWidget: (value, meta) {
                           return Padding(
@@ -146,24 +146,18 @@ class SalesPurchaseChart extends StatelessWidget {
                       barRods: [
                         /// SALES
                         BarChartRodData(
-                          toY: salesData[i].abs(),
-
+                          toY: salesData[i].isFinite ? salesData[i].abs() : 0,
                           color: Colors.green,
-
                           width: 7,
-
-                          borderRadius: BorderRadius.circular(4),
                         ),
 
                         /// PURCHASE
                         BarChartRodData(
-                          toY: purchaseData[i].abs(),
-
+                          toY: purchaseData[i].isFinite
+                              ? purchaseData[i].abs()
+                              : 0,
                           color: Colors.red,
-
                           width: 7,
-
-                          borderRadius: BorderRadius.circular(4),
                         ),
                       ],
                     ),
@@ -185,33 +179,33 @@ class SalesPurchaseChart extends StatelessWidget {
     return value.toInt().toString();
   }
 
- double _getMaxY() {
-  double maxSales = salesData.isNotEmpty
-      ? salesData.reduce((a, b) => a > b ? a : b)
-      : 0;
+  double _getMaxY() {
+    double maxSales = salesData.isNotEmpty
+        ? salesData.reduce((a, b) => a > b ? a : b)
+        : 0;
 
-  double maxPurchase = purchaseData.isNotEmpty
-      ? purchaseData.reduce((a, b) => a > b ? a : b)
-      : 0;
+    double maxPurchase = purchaseData.isNotEmpty
+        ? purchaseData.reduce((a, b) => a > b ? a : b)
+        : 0;
 
-  double maxValue = maxSales > maxPurchase ? maxSales : maxPurchase;
+    double maxValue = maxSales > maxPurchase ? maxSales : maxPurchase;
 
-  // SAFE DEFAULT
-  if (maxValue <= 0) {
-    return 5;
+    // SAFE DEFAULT
+    if (maxValue <= 0) {
+      return 5;
+    }
+
+    return maxValue + (maxValue * 0.2);
   }
 
-  return maxValue + (maxValue * 0.2);
-}
+  double _getInterval() {
+    double interval = _getMaxY() / 5;
 
-double _getInterval() {
-  double interval = _getMaxY() / 5;
+    // NEVER RETURN 0
+    if (interval <= 0 || interval.isNaN || interval.isInfinite) {
+      return 1;
+    }
 
-  // NEVER RETURN 0
-  if (interval <= 0 || interval.isNaN || interval.isInfinite) {
-    return 1;
+    return interval;
   }
-
-  return interval;
-}
 }
